@@ -21,6 +21,9 @@ void copia_matriz(camera *cam, unsigned char ***matriz_01, unsigned char ***matr
 int main (void) {
 	bool finalizado = false;
 	bool renderizar = true;
+    bool movimento = false;
+    int diferenca = 0;
+    int sensibilidade = 40;
 	int range = 70;
 	const int FPS = 60;
         
@@ -103,7 +106,8 @@ int main (void) {
 		if (evento.type == ALLEGRO_EVENT_TIMER && !renderizar) {
 			renderizar = true;
 			camera_atualiza(cam);
-
+            
+            diferenca = 0;
 			for(int y = 0; y < cam->altura; y++) {
                   
 			    for(int x = 0; x < cam->largura; x++) {
@@ -121,8 +125,14 @@ int main (void) {
 			 		    matriz[y][x][0] = 255;
 			 		    matriz[y][x][1] = 255;
 			 		    matriz[y][x][2] = 255;
+                        diferenca++;
 			 	    }
 			    }
+            }
+            if (diferenca >= (cam->altura * cam->largura) / sensibilidade) {
+                movimento = true;
+            } else {
+                movimento = false;
             }
 
             copia_matriz(cam, cam->quadro, matriz_anterior);
@@ -143,6 +153,14 @@ int main (void) {
 					if (range < 0)
 						range = 0;
 					break;
+                case ALLEGRO_KEY_RIGHT:
+                    sensibilidade += 5;
+                    break;
+                case ALLEGRO_KEY_LEFT:
+                    sensibilidade -= 5;
+                    if (sensibilidade < 5)
+                        sensibilidade = 5;
+                    break;
 			}
 		}
 		if (renderizar && al_is_event_queue_empty(fila_de_eventos)) {
@@ -155,7 +173,19 @@ int main (void) {
             al_draw_bitmap(imagem_dir, LARG / 2, 0, 0);
 
             al_draw_textf(fonte22, al_map_rgb(0, 0, 0), 20, ALT - 42, ALLEGRO_ALIGN_LEFT,
-					"Range: %d  (setas para alterar)", range);
+					"Range: %d Sensibilidade: %d  (setas para alterar)", range, sensibilidade);
+
+            if (movimento) {
+                al_draw_textf(fonte22, al_map_rgb(0, 0, 0), 20, 20, ALLEGRO_ALIGN_LEFT,
+				    "Moveu!");
+            } else {            
+                al_draw_textf(fonte22, al_map_rgb(0, 0, 0), 20, 20, ALLEGRO_ALIGN_LEFT,
+    				"Parado");
+            }
+
+            al_draw_textf(fonte22, al_map_rgb(0, 0, 0), 20, 50, ALLEGRO_ALIGN_LEFT,
+        		"%d %d", diferenca, (cam->largura * cam->altura) / sensibilidade);
+
 
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
