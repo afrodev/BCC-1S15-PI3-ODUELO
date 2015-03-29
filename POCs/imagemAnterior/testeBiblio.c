@@ -1,3 +1,19 @@
+/*
+ * Projeto Integrador III
+ * Bacharelado em Ciência da Computação - Centro Universitário Senac
+ *
+ * Professor Orientador: Marcelo Hashimoto
+ *
+ * Grupo:
+ * - Mario Roberto Suruagu de Castro
+ * - Humberto Vieira de Castro
+ * - William Collecta de Alvelos
+ *
+ *
+ * POC de detecção de movimento
+ * Compara o frame atual da camera com o frame anterior para detectar se houve movimento
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <allegro5/allegro.h>
@@ -8,6 +24,7 @@
 
 #include "camera.h"
 
+/* Copia uma matriz de rgb para outra */
 void copia_matriz(camera *cam, unsigned char ***matriz_01, unsigned char ***matriz_02) {
 	for (int y = 0; y < cam->altura; y++) {
         for (int x = 0; x < cam->largura; x++) {
@@ -15,14 +32,45 @@ void copia_matriz(camera *cam, unsigned char ***matriz_01, unsigned char ***matr
             matriz_02[y][x][1] = matriz_01[y][x][1];
             matriz_02[y][x][2] = matriz_01[y][x][2];
         }
-    };
+    }
+}
+
+/* Compara frames para detectar se houve movimento */
+bool compara_matriz(camera *cam, unsigned char ***matriz_original, unsigned char ***matriz, int range, int sensibilidade) {	
+	int diferenca = 0;
+
+	for(int y = 0; y < cam->altura; y++) {
+	  
+		for(int x = 0; x < cam->largura; x++) {
+			int r = cam->quadro[y][x][0];
+			int g = cam->quadro[y][x][1];
+			int b = cam->quadro[y][x][2];  
+	   
+		    if(r >= matriz_original[y][x][0] - range && r <= matriz_original[y][x][0] + range &&
+		       g >= matriz_original[y][x][1] - range && g <= matriz_original[y][x][1] + range &&
+		       b >= matriz_original[y][x][2] - range && b <= matriz_original[y][x][2] + range) {
+	        	matriz[y][x][0] = 0;
+			    matriz[y][x][1] = 0;
+			    matriz[y][x][2] = 0;
+		    } else {
+			    matriz[y][x][0] = 255;
+			    matriz[y][x][1] = 255;
+			    matriz[y][x][2] = 255;
+	        	diferenca++;
+		    }
+		}		
+	}
+	if (diferenca > (cam->altura * cam->largura) / sensibilidade) {
+		return true;
+	} 
+
+	return false;
 }
 
 int main (void) {
 	bool finalizado = false;
 	bool renderizar = true;
     bool movimento = false;
-    int diferenca = 0;
     int sensibilidade = 40;
 	int range = 70;
 	const int FPS = 60;
@@ -105,37 +153,13 @@ int main (void) {
 
 		if (evento.type == ALLEGRO_EVENT_TIMER && !renderizar) {
 			renderizar = true;
+
 			camera_atualiza(cam);
             
-            diferenca = 0;
-			for(int y = 0; y < cam->altura; y++) {
-                  
-			    for(int x = 0; x < cam->largura; x++) {
-					int r = cam->quadro[y][x][0];
-			 		int g = cam->quadro[y][x][1];
-			 		int b = cam->quadro[y][x][2];  
-                   
-                    if(r >= matriz_anterior[y][x][0] - range && r <= matriz_anterior[y][x][0] + range &&
-                       g >= matriz_anterior[y][x][1] - range && g <= matriz_anterior[y][x][1] + range &&
-                       b >= matriz_anterior[y][x][2] - range && b <= matriz_anterior[y][x][2] + range) {
-                        matriz[y][x][0] = 0;
-			 		    matriz[y][x][1] = 0;
-			 		    matriz[y][x][2] = 0;
-                    } else {
-			 		    matriz[y][x][0] = 255;
-			 		    matriz[y][x][1] = 255;
-			 		    matriz[y][x][2] = 255;
-                        diferenca++;
-			 	    }
-			    }
-            }
-            if (diferenca >= (cam->altura * cam->largura) / sensibilidade) {
-                movimento = true;
-            } else {
-                movimento = false;
-            }
+            movimento = compara_matriz(cam, matriz_anterior, matriz, range, sensibilidade);
 
             copia_matriz(cam, cam->quadro, matriz_anterior);
+
 		} else if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
 			finalizado = true;
 		} else if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
@@ -182,10 +206,6 @@ int main (void) {
                 al_draw_textf(fonte22, al_map_rgb(0, 0, 0), 20, 20, ALLEGRO_ALIGN_LEFT,
     				"Parado");
             }
-
-            al_draw_textf(fonte22, al_map_rgb(0, 0, 0), 20, 50, ALLEGRO_ALIGN_LEFT,
-        		"%d %d", diferenca, (cam->largura * cam->altura) / sensibilidade);
-
 
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));

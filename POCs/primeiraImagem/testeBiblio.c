@@ -1,13 +1,34 @@
+/*
+ * Projeto Integrador III
+ * Bacharelado em Ciência da Computação - Centro Universitário Senac
+ *
+ * Professor Orientador: Marcelo Hashimoto
+ *
+ * Grupo:
+ * - Mario Roberto Suruagu de Castro
+ * - Humberto Vieira de Castro
+ * - William Collecta de Alvelos
+ *
+ *
+ * POC de detecção de movimento
+ * Compara o frame atual da camera com o primeiro frame capturado pela camera para detectar se houve movimento
+ */
+
+/*Bibliotecas Padrao*/ 
 #include <stdio.h>
 #include <stdlib.h>
+
+/*Bibliotecas Allegro*/ 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 
+/*Biblioteca da Camera*/
 #include "camera.h"
 
+/* Copia uma matriz de rgb para outra */
 void copia_matriz(camera *cam, unsigned char ***matriz_01, unsigned char ***matriz_02) {
 	for (int y = 0; y < cam->altura; y++) {
         for (int x = 0; x < cam->largura; x++) {
@@ -18,15 +39,51 @@ void copia_matriz(camera *cam, unsigned char ***matriz_01, unsigned char ***matr
     };
 }
 
+/* Compara frames para detectar se houve movimento */
+bool compara_matriz(camera *cam, unsigned char ***matriz_original, unsigned char ***matriz, int range, int sensibilidade) {	
+	int diferenca = 0; // quantidade de pixels diferentes
+
+	/* Percorre matriz */
+	for(int y = 0; y < cam->altura; y++) {
+	  
+		for(int x = 0; x < cam->largura; x++) {
+			/*RGB do pixel atual*/
+			int r = cam->quadro[y][x][0]; 
+			int g = cam->quadro[y][x][1];
+			int b = cam->quadro[y][x][2];  
+	   
+	   		/* Compara pixel atual com o da matriz original */
+		    if(r >= matriz_original[y][x][0] - range && r <= matriz_original[y][x][0] + range &&
+		       g >= matriz_original[y][x][1] - range && g <= matriz_original[y][x][1] + range &&
+		       b >= matriz_original[y][x][2] - range && b <= matriz_original[y][x][2] + range) {
+	        	matriz[y][x][0] = 0;
+			    matriz[y][x][1] = 0;
+			    matriz[y][x][2] = 0;
+		    } else {
+			    matriz[y][x][0] = 255;
+			    matriz[y][x][1] = 255;
+			    matriz[y][x][2] = 255;
+	        	diferenca++;
+		    }
+		}		
+	}
+
+	if (diferenca > (cam->altura * cam->largura) / sensibilidade) {
+		return true; // Movomento detectado
+	} 
+
+	return false; // Movimento não detectado
+}
+
 int main (void) {
-	bool finalizado = false;
-	bool renderizar = true;
-    bool movimento = false;
-    int diferenca = 0;
-    int sensibilidade = 30;
-	int range = 70;
-	const int FPS = 60;
+	bool finalizado = false; // controle do loop principal
+	bool renderizar = true;  // controle de renderizacao 
+    bool movimento = false;  // deteccao de movimento
+    int sensibilidade = 30;  // sensibilidade da deteccao de movimento
+	int range = 70;          // range da deteccao de dierenca RGB
+	const int FPS = 60;      // controle de fps
         
+    /*Declaracao das variaves Allegro*/
 	ALLEGRO_DISPLAY *janela = NULL;
 	ALLEGRO_DISPLAY_MODE disp_data;
 	ALLEGRO_EVENT_QUEUE *fila_de_eventos = NULL;
@@ -36,18 +93,24 @@ int main (void) {
 	ALLEGRO_TIMER *timer = NULL;
 	ALLEGRO_FONT *fonte22 = NULL;
 
+	/* Inicalizacao da camera */
 	camera *cam = camera_inicializa(0);
 	if (!cam) {
 		fprintf(stderr, "Falha ao Inicializar a Camera\n");
 		return EXIT_FAILURE;
 	}
 
+	/* Dimencoes da Janela */
 	const int LARG = cam->largura * 3;
 	const int ALT = cam->altura;
 
+	/* alocacao das matrizes */
 	unsigned char ***matriz = camera_aloca_matriz(cam);
     unsigned char ***matriz_original = camera_aloca_matriz(cam);
 
+    /*
+     *Inicializacao dos componentes allegro
+     *-----------------------------------------------------------------------------------*/
 	if (!al_init()) {
 		fprintf(stderr, "Falha ao Carregar Allegro5\n");
 		return EXIT_FAILURE;
@@ -88,6 +151,7 @@ int main (void) {
 		return EXIT_FAILURE;
 	}
 
+	/* Imagens da camera */
 	imagem_esq = al_create_bitmap(cam->largura, cam->altura);
     imagem_meio = al_create_bitmap(cam->largura, cam->altura);
     imagem_dir = al_create_bitmap(cam->largura, cam->altura);
@@ -98,6 +162,8 @@ int main (void) {
 	al_register_event_source(fila_de_eventos, al_get_mouse_event_source());
 
 	al_start_timer(timer);
+
+	/* Registra primeira imagem da camera */
     camera_atualiza(cam);
     copia_matriz(cam, cam->quadro, matriz_original);
     camera_copia(cam, matriz_original, imagem_dir);
@@ -110,33 +176,8 @@ int main (void) {
 			renderizar = true;
 			camera_atualiza(cam);
 
-            diferenca = 0;
-			for(int y = 0; y < cam->altura; y++) {
-                  
-			    for(int x = 0; x < cam->largura; x++) {
-					int r = cam->quadro[y][x][0];
-			 		int g = cam->quadro[y][x][1];
-			 		int b = cam->quadro[y][x][2];  
-                   
-                    if(r >= matriz_original[y][x][0] - range && r <= matriz_original[y][x][0] + range &&
-                       g >= matriz_original[y][x][1] - range && g <= matriz_original[y][x][1] + range &&
-                       b >= matriz_original[y][x][2] - range && b <= matriz_original[y][x][2] + range) {
-                        matriz[y][x][0] = 0;
-			 		    matriz[y][x][1] = 0;
-			 		    matriz[y][x][2] = 0;
-                    } else {
-			 		    matriz[y][x][0] = 255;
-			 		    matriz[y][x][1] = 255;
-			 		    matriz[y][x][2] = 255;
-                        diferenca++;
-			 	    }
-			    }
-            }
-            if (diferenca > (cam->altura * cam->largura) / sensibilidade) {
-                movimento = true;
-            } else {
-                movimento = false;
-            }
+			movimento = compara_matriz(cam, matriz_original, matriz, range, sensibilidade); // deteccao de movimento
+            
 		} else if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
 			finalizado = true;
 		} else if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
@@ -144,7 +185,7 @@ int main (void) {
 				case ALLEGRO_KEY_ESCAPE:
 					finalizado = true;
 					break;
-				case ALLEGRO_KEY_SPACE:
+				case ALLEGRO_KEY_SPACE: // resta imagem original da camera
 					copia_matriz(cam, cam->quadro, matriz_original);
 					camera_copia(cam, matriz_original, imagem_dir);
 					break;
@@ -188,9 +229,6 @@ int main (void) {
                 al_draw_textf(fonte22, al_map_rgb(0, 0, 0), 20, 20, ALLEGRO_ALIGN_LEFT,
 				    "Parado");
             }
-
-            al_draw_textf(fonte22, al_map_rgb(0, 0, 0), 20, 50, ALLEGRO_ALIGN_LEFT,
-                    "%d %d", diferenca, (cam->altura * cam->largura) / sensibilidade);
 
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
