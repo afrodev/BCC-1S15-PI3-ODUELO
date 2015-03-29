@@ -71,7 +71,7 @@ int main (void) {
 	bool finalizado = false;
 	bool renderizar = true;
     bool movimento = false;
-    int sensibilidade = 40;
+    int sensibilidade = 100;
 	int range = 70;
 	const int FPS = 60;
         
@@ -89,9 +89,6 @@ int main (void) {
 		return EXIT_FAILURE;
 	}
 
-	const int LARG = cam->largura * 2;
-	const int ALT = cam->altura;
-
 	unsigned char ***matriz = camera_aloca_matriz(cam);
     unsigned char ***matriz_anterior = camera_aloca_matriz(cam);
 
@@ -101,6 +98,15 @@ int main (void) {
 	}
 
 	al_get_display_mode(0, &disp_data);
+
+	int largCam = cam->largura;
+	int altCam = cam->altura;
+	float largImg = disp_data.width / 2;
+	float altImg = (float) altCam / (largCam / largImg);
+
+	const int LARG = largImg * 2;
+	const int ALT = altImg;
+
 	janela = al_create_display(LARG, ALT);
 	if (!janela) {
 		fprintf(stderr, "Falha ao Iniciar Janela\n");
@@ -135,8 +141,8 @@ int main (void) {
 		return EXIT_FAILURE;
 	}
 
-	imagem_esq = al_create_bitmap(cam->largura, cam->altura);
-    imagem_dir = al_create_bitmap(cam->largura, cam->altura);
+	imagem_esq = al_create_bitmap(largCam, altCam);
+    imagem_dir = al_create_bitmap(largCam, altCam);
 
 	al_register_event_source(fila_de_eventos, al_get_keyboard_event_source());
 	al_register_event_source(fila_de_eventos, al_get_display_event_source(janela));
@@ -193,8 +199,8 @@ int main (void) {
 			camera_copia(cam, cam->quadro, imagem_esq);
             camera_copia(cam, matriz, imagem_dir);
 
-            al_draw_bitmap(imagem_esq, 0, 0, 0);
-            al_draw_bitmap(imagem_dir, LARG / 2, 0, 0);
+            al_draw_scaled_bitmap(imagem_esq, 0, 0, largCam, altCam, 0, 0, largImg, altImg, 0);
+            al_draw_scaled_bitmap(imagem_dir, 0, 0, largCam, altCam, largImg, 0, largImg, altImg, 0);
 
             al_draw_textf(fonte22, al_map_rgb(0, 0, 0), 20, ALT - 42, ALLEGRO_ALIGN_LEFT,
 					"Range: %d Sensibilidade: %d  (setas para alterar)", range, sensibilidade);

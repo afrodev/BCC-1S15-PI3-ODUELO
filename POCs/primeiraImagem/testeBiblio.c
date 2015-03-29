@@ -100,10 +100,6 @@ int main (void) {
 		return EXIT_FAILURE;
 	}
 
-	/* Dimencoes da Janela */
-	const int LARG = cam->largura * 3;
-	const int ALT = cam->altura;
-
 	/* alocacao das matrizes */
 	unsigned char ***matriz = camera_aloca_matriz(cam);
     unsigned char ***matriz_original = camera_aloca_matriz(cam);
@@ -117,6 +113,15 @@ int main (void) {
 	}
 
 	al_get_display_mode(0, &disp_data);
+
+	int largCam = cam->largura;
+	int altCam = cam->altura;
+	float largImg = disp_data.width / 3;
+	float altImg = altCam / (largCam / largImg);
+
+	const int LARG = largImg * 3;
+	const int ALT = altImg;
+
 	janela = al_create_display(LARG, ALT);
 	if (!janela) {
 		fprintf(stderr, "Falha ao Iniciar Janela\n");
@@ -152,9 +157,9 @@ int main (void) {
 	}
 
 	/* Imagens da camera */
-	imagem_esq = al_create_bitmap(cam->largura, cam->altura);
-    imagem_meio = al_create_bitmap(cam->largura, cam->altura);
-    imagem_dir = al_create_bitmap(cam->largura, cam->altura);
+	imagem_esq = al_create_bitmap(largCam, altCam);
+    imagem_meio = al_create_bitmap(largCam, altCam);
+    imagem_dir = al_create_bitmap(largCam, altCam);
 
 	al_register_event_source(fila_de_eventos, al_get_keyboard_event_source());
 	al_register_event_source(fila_de_eventos, al_get_display_event_source(janela));
@@ -213,9 +218,9 @@ int main (void) {
 			camera_copia(cam, cam->quadro, imagem_esq);
             camera_copia(cam, matriz, imagem_meio);
 
-            al_draw_bitmap(imagem_esq, 0, 0, 0);
-            al_draw_bitmap(imagem_meio, LARG / 3, 0, 0);
-            al_draw_bitmap(imagem_dir, (2 * LARG) / 3, 0, 0);
+            al_draw_scaled_bitmap(imagem_esq, 0, 0, largCam, altCam, 0, 0, largImg, altImg, 0);
+            al_draw_scaled_bitmap(imagem_meio, 0, 0, largCam, altCam, largImg, 0, largImg, altImg, 0);
+            al_draw_scaled_bitmap(imagem_dir, 0, 0, largCam, altCam, largImg * 2, 0, largImg, altImg, 0);
 
             al_draw_textf(fonte22, al_map_rgb(0, 0, 0), 20, ALT - 42, ALLEGRO_ALIGN_LEFT,
 					"Range: %d Sensibilidade: %d (setas para alterar)", range, sensibilidade);
