@@ -23,7 +23,7 @@ int main (void) {
 	bool renderizar = true;
     bool movimento = false;
     int diferenca = 0;
-    int sensibilidade = 4;
+    int sensibilidade = 30;
 	int range = 70;
 	const int FPS = 60;
         
