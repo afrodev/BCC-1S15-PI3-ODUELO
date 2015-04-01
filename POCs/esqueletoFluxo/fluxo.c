@@ -54,6 +54,8 @@ int main (void) {
 	}
 
 	al_get_display_mode(0, &disp_data);
+	printf("%d \n", disp_data.width);
+	printf("%d \n", disp_data.height);
 	al_set_new_display_flags(ALLEGRO_FULLSCREEN);
 	const int LARG = disp_data.width;
     //const int LARG = 1280;
