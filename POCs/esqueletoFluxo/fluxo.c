@@ -53,9 +53,13 @@ int main (void) {
 		return EXIT_FAILURE;
 	}
 
+	int lixo = al_get_num_display_modes() - 1;
+	printf("%d\n", lixo);
 	al_get_display_mode(0, &disp_data);
 	printf("%d \n", disp_data.width);
 	printf("%d \n", disp_data.height);
+	printf("%d \n", disp_data.format);
+	printf("%d \n", disp_data.refresh_rate);
 	al_set_new_display_flags(ALLEGRO_FULLSCREEN);
 	const int LARG = disp_data.width;
     //const int LARG = 1280;
