@@ -13,7 +13,7 @@ camera.o: camera.c camera.h
 
 exemplo: testeBiblio.c camera.o
 	$(CC) $(FLAGS) $^ -o $@ $(LIBS)
-
+	
 clean:
 	rm -f *~ *.o
 
