@@ -4,6 +4,6 @@
 #include "camera.h"
 
 void copia_matriz(camera *, unsigned char ***, unsigned char ***);
-bool compara_matriz(camera *, unsigned char ***, unsigned char ***, int, int);
+bool compara_matriz(camera *, unsigned char ***, unsigned char ***, int, int, int, bool *);
 
 #endif
