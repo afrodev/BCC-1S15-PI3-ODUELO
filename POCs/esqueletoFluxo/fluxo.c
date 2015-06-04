@@ -31,9 +31,11 @@ typedef struct{
 	float v;
 }hsv;
 
-enum ESTADO{tela_titulo, tela_jogo, tela_fim}; 
+enum ESTADO{tela_titulo, tela_jogo, tela_fim, tela_como_jogar, tela_creditos, tela_escolha_rodadas}; 
 
 int main (void) {
+
+	//Inicialização de variaveis
 	int estado = tela_titulo;
 	bool finalizado = false;
 	bool renderizar = true;
@@ -66,7 +68,17 @@ int main (void) {
 	ALLEGRO_FONT *fonteGrande = NULL;
 	ALLEGRO_FONT *fonte22 = NULL;
 	ALLEGRO_BITMAP *imagem_esq = NULL;
-    ALLEGRO_BITMAP *imagem_dir = NULL;	
+    ALLEGRO_BITMAP *imagem_dir = NULL;
+
+    //Timagem de tela de titulo
+    ALLEGRO_BITMAP *imagem_fundo_titulo = NULL;
+    ALLEGRO_BITMAP *imagem_fundo_creditos = NULL;
+	ALLEGRO_BITMAP *imagem_fundo_como_jogar = NULL;
+	ALLEGRO_BITMAP *imagem_fundo_escolha_rodadas = NULL;
+
+    ALLEGRO_FONT *fonteMedia = NULL;
+    ALLEGRO_FONT *fonteMediaMenor = NULL;
+
 
 	camera *cam = camera_inicializa(0);
 	if (!cam) {
@@ -92,17 +104,19 @@ int main (void) {
 
 	int lixo = al_get_num_display_modes() - 1;
 	al_get_display_mode(0, &disp_data);
-	al_set_new_display_flags(ALLEGRO_FULLSCREEN);
-	const int LARG = disp_data.width;
-    //const int LARG = 1280;
-	const int ALT = disp_data.height;
-	//const int ALT = 720;
+	//al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+	//const int LARG = disp_data.width;
+    const int LARG = 1280;
+	//const int ALT = disp_data.height;
+	const int ALT = 720;
 	float razao = (float) LARG / ALT;
 	janela = al_create_display(LARG, ALT);
+
 	if (!janela) {
 		fprintf(stderr, "Falha ao Iniciar Janela\n");
 		return EXIT_FAILURE;
 	}
+
 	al_set_window_position(janela, (disp_data.width - LARG) / 2, (disp_data.height - ALT) / 2);
 	al_set_window_title(janela, "POC");
 
@@ -144,6 +158,47 @@ int main (void) {
 	if (!fonte22)
 	{
 		fprintf(stderr, "Falha ao Carregar a Fonte\n");
+		return EXIT_FAILURE;
+	}
+	fonteMedia = al_load_font("fontes/thedeadsaloon-Regular.ttf", (5 * ALT) / 100, 0);
+	if (!fonteMedia)
+	{
+		fprintf(stderr, "Falha ao Carregar a Fonte\n");
+		return EXIT_FAILURE;
+	}
+
+	fonteMediaMenor = al_load_font("fontes/thedeadsaloon-Regular.ttf", (4.5 * ALT) / 100, 0);
+	if (!fonteMediaMenor)
+	{
+		fprintf(stderr, "Falha ao Carregar a Fonte\n");
+		return EXIT_FAILURE;
+	}
+
+	imagem_fundo_titulo = al_load_bitmap("imagens/p_inicial.png");
+	if (!imagem_fundo_titulo)
+	{
+		fprintf(stderr, "Falha ao carregar imagem 'p_inicial.png'\n");
+		return EXIT_FAILURE;
+	}
+
+	imagem_fundo_creditos = al_load_bitmap("imagens/creditos.png");
+	if (!imagem_fundo_creditos)
+	{
+		fprintf(stderr, "Falha ao carregar imagem 'creditos.png'\n");
+		return EXIT_FAILURE;
+	}
+
+	imagem_fundo_como_jogar = al_load_bitmap("imagens/comojogar.png");
+	if (!imagem_fundo_como_jogar)
+	{
+		fprintf(stderr, "Falha ao carregar imagem 'comojogar.png'\n");
+		return EXIT_FAILURE;
+	}
+
+	imagem_fundo_escolha_rodadas = al_load_bitmap("imagens/selecao.png");
+	if (!imagem_fundo_escolha_rodadas)
+	{
+		fprintf(stderr, "Falha ao carregar imagem 'selecao.png'\n");
 		return EXIT_FAILURE;
 	}
 
@@ -249,22 +304,67 @@ int main (void) {
 			mouseY = evento.mouse.y;
 		}
 
+		//EVENTO DE CLICK DO BOTAO DO MOUSE
 		else if (evento.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 			if (evento.mouse.button & 1) {
+				//CLICK NA TELA DE TITULO
 				if (estado == tela_titulo) {
-					if (mouseX >= LARG / 2 - (13 * LARG) / 100 && mouseX <= LARG / 2 + (13 * LARG) / 100 &&
-						mouseY >= (37 * ALT) / 100 && mouseY <= (50 * ALT) / 100) {
-						tempo = 0;
+					// SE ELE CLICAR EM INICIAR JOGO
+					if (mouseX >= LARG / 2 - (15 * LARG) / 100 && mouseX <= LARG / 2 + (15 * LARG) / 100 &&
+					mouseY >= (59 * ALT) / 100 && mouseY <= (73 * ALT) / 100) {
+						/*tempo = 0;
 						tempoInicio = 0;
 						permiteTiro = false;
 						dueloIniciado = false;
 						camera_atualiza(cam);
 						camera_atualiza(cam02);
+						estado = tela_jogo;*/
+						estado = tela_escolha_rodadas;
+					}
+					// SE ELE CLICAR EM COMO JOGAR
+					if (mouseX >= LARG / 2 - (12 * LARG) / 100 && mouseX <= LARG / 2 + (12 * LARG) / 100 &&
+					mouseY >= (74 * ALT) / 100 && mouseY <= (85 * ALT) / 100) {
+						estado = tela_como_jogar;
+					}
+
+					// SE ELE CLICOU EM CREDITOS	
+					if (mouseX >= LARG / 2 - (12 * LARG) / 100 && mouseX <= LARG / 2 + (12 * LARG) / 100 &&
+					mouseY >= (87 * ALT) / 100 && mouseY <= (98 * ALT) / 100) {
+						estado = tela_creditos;
+					}
+
+				}else if (estado == tela_escolha_rodadas){
+					//Se escolhe melhor de 1
+					if (mouseX >= LARG / 2 - (43 * LARG) / 100 && mouseX <= LARG / 2 + (-20 * LARG) / 100 &&
+						mouseY >= (30 * ALT) / 100 && mouseY <= (70 * ALT) / 100) {
+						rounds = 1;
 						estado = tela_jogo;
 					}
-					if (mouseX >= LARG / 2 - (13 * LARG) / 100 && mouseX <= LARG / 2 + (13 * LARG) / 100 &&
-						mouseY >= (77 * ALT) / 100 && mouseY <= (90 * ALT) / 100) {
-						finalizado = true;
+					//Se escolhe melhor de 3
+					if (mouseX >= LARG / 2 - (11 * LARG) / 100 && mouseX <= LARG / 2 + (11.3 * LARG) / 100 &&
+						mouseY >= (30 * ALT) / 100 && mouseY <= (70 * ALT) / 100) {
+						rounds = 3;
+						estado = tela_jogo;
+					}
+
+					//Se escolhe melhor de 5
+					if (mouseX >= LARG / 2 - (- 21 * LARG) / 100 && mouseX <= LARG / 2 + (43 * LARG) / 100 &&
+						mouseY >= (30 * ALT) / 100 && mouseY <= (70 * ALT) / 100) {
+						rounds = 5;	
+						estado = tela_jogo;
+					}
+
+				}else if (estado == tela_como_jogar) {
+					//BOTAO DE VOLTAR
+					if (mouseX >= LARG / 2 - (14 * LARG) / 100 && mouseX <= LARG / 2 + (12 * LARG) / 100 &&
+						mouseY >= (80 * ALT) / 100 && mouseY <= (90 * ALT) / 100) {
+						estado = tela_titulo;
+					}
+				}else if (estado == tela_creditos) {
+					// SE ELE CLICOU NO BOTAO VOLTAR
+					if (mouseX >= LARG / 2 - (14 * LARG) / 100 && mouseX <= LARG / 2 + (12 * LARG) / 100 &&
+					mouseY >= (80 * ALT) / 100 && mouseY <= (90 * ALT) / 100) {
+						estado = tela_titulo;
 					}
 				}
 			}
@@ -274,28 +374,31 @@ int main (void) {
 			renderizar = false;
 
 			if (estado == tela_titulo) {
-				al_draw_textf(fonteTitulo, al_map_rgb(240, 240, 240), LARG / 2, (10 * ALT) / 100, ALLEGRO_ALIGN_CENTRE, "O DUELO");
 
-				al_draw_filled_rectangle(LARG / 2 - (13 * LARG) / 100, (37 * ALT) / 100, LARG / 2 + (13 * LARG) / 100, (50 * ALT) / 100, al_map_rgb(20, 20, 20));
-				al_draw_textf(fonteGrande, al_map_rgb(240, 240, 240), LARG / 2, (40 * ALT) / 100, ALLEGRO_ALIGN_CENTRE, "Iniciar Jogo");
-				if (mouseX >= LARG / 2 - (13 * LARG) / 100 && mouseX <= LARG / 2 + (13 * LARG) / 100 &&
-					mouseY >= (37 * ALT) / 100 && mouseY <= (50 * ALT) / 100) {
-					al_draw_rectangle(LARG / 2 - (13 * LARG) / 100, (37 * ALT) / 100, LARG / 2 + (13 * LARG) / 100, (50 * ALT) / 100, al_map_rgb(60, 60, 60), 5);
+				al_draw_bitmap(imagem_fundo_titulo, 0, 0, 0);
+
+				/* BOTAO DE INICIAR JOGO */
+				if (mouseX >= LARG / 2 - (15 * LARG) / 100 && mouseX <= LARG / 2 + (15 * LARG) / 100 &&
+					mouseY >= (59 * ALT) / 100 && mouseY <= (73 * ALT) / 100) {
+					al_draw_rectangle(LARG / 2 - (15 * LARG) / 100, (59 * ALT) / 100, LARG / 2 + (15 * LARG) / 100,
+					 (73 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
 				}
 				
-				al_draw_filled_rectangle(LARG / 2 - (13 * LARG) / 100, (57 * ALT) / 100, LARG / 2 + (13 * LARG) / 100, (70 * ALT) / 100, al_map_rgb(20, 20, 20));
-				al_draw_textf(fonteGrande, al_map_rgb(240, 240, 240), LARG / 2, (60 * ALT) / 100, ALLEGRO_ALIGN_CENTRE, "Como Jogar");
-				if (mouseX >= LARG / 2 - (13 * LARG) / 100 && mouseX <= LARG / 2 + (13 * LARG) / 100 &&
-					mouseY >= (57 * ALT) / 100 && mouseY <= (70 * ALT) / 100) {
-					al_draw_rectangle(LARG / 2 - (13 * LARG) / 100, (57 * ALT) / 100, LARG / 2 + (13 * LARG) / 100, (70 * ALT) / 100, al_map_rgb(60, 60, 60), 5);
+
+				// BOTAO DE COMO JOGAR
+				if (mouseX >= LARG / 2 - (12 * LARG) / 100 && mouseX <= LARG / 2 + (12 * LARG) / 100 &&
+					mouseY >= (74 * ALT) / 100 && mouseY <= (85 * ALT) / 100) {
+					al_draw_rectangle(LARG / 2 - (12 * LARG) / 100, (74 * ALT) / 100, LARG / 2 + (12 * LARG) / 100,
+					 (85 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
 				}
 
-				al_draw_filled_rectangle(LARG / 2 - (13 * LARG) / 100, (77 * ALT) / 100, LARG / 2 + (13 * LARG) / 100, (90 * ALT) / 100, al_map_rgb(20, 20, 20));
-				al_draw_textf(fonteGrande, al_map_rgb(240, 240, 240), LARG / 2, (80 * ALT) / 100, ALLEGRO_ALIGN_CENTRE, "Sair");
-				if (mouseX >= LARG / 2 - (13 * LARG) / 100 && mouseX <= LARG / 2 + (13 * LARG) / 100 &&
-					mouseY >= (77 * ALT) / 100 && mouseY <= (90 * ALT) / 100) {
-					al_draw_rectangle(LARG / 2 - (13 * LARG) / 100, (77 * ALT) / 100, LARG / 2 + (13 * LARG) / 100, (90 * ALT) / 100, al_map_rgb(60, 60, 60), 5);
+				//BOTAO DE TELA DE CREDITOS
+				if (mouseX >= LARG / 2 - (12 * LARG) / 100 && mouseX <= LARG / 2 + (12 * LARG) / 100 &&
+					mouseY >= (87 * ALT) / 100 && mouseY <= (98 * ALT) / 100) {
+					al_draw_rectangle(LARG / 2 - (12 * LARG) / 100, (87 * ALT) / 100, LARG / 2 + (12 * LARG) / 100, (98 * ALT) / 100, 
+						al_map_rgb(255, 255, 255), 5);
 				}
+
 			} else if (estado == tela_jogo) {
 				camera_copia(cam, cam->quadro, imagem_esq);
 	            camera_copia(cam02, cam02->quadro, imagem_dir);	
@@ -331,6 +434,7 @@ int main (void) {
 	                al_draw_textf(fonte22, al_map_rgb(255, 255, 255), LARG - 20, 20, ALLEGRO_ALIGN_RIGHT,
 	    				"Parado");
 	            }
+
 			} else if (estado == tela_fim) {
 				if (corPlayer01) {
 					al_draw_scaled_bitmap(imagem_esq, 0, 0, cam->largura, cam->altura, (LARG / 2) - (largImg / 2), (ALT / 2) - (altImg / 2), largImg, altImg, 0);
@@ -347,6 +451,73 @@ int main (void) {
 					al_draw_textf(fonte22, al_map_rgb(255, 255, 255), 20, 20, ALLEGRO_ALIGN_LEFT,
 	    				"Jogador 2 se moveu antes da hora!");
 				}
+
+			} else if (estado == tela_escolha_rodadas) {
+				al_draw_bitmap(imagem_fundo_escolha_rodadas, 0, 0, 0);
+
+				//Se escolhe melhor de 1
+				if (mouseX >= LARG / 2 - (43 * LARG) / 100 && mouseX <= LARG / 2 + (-20 * LARG) / 100 &&
+					mouseY >= (30 * ALT) / 100 && mouseY <= (70 * ALT) / 100) {
+					al_draw_rectangle(LARG / 2 - (43 * LARG) / 100, (30 * ALT) / 100, LARG / 2 + (-20 * LARG) / 100,
+						(70 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
+				}
+				//Se escolhe melhor de 3
+				if (mouseX >= LARG / 2 - (11 * LARG) / 100 && mouseX <= LARG / 2 + (11.3 * LARG) / 100 &&
+					mouseY >= (30 * ALT) / 100 && mouseY <= (70 * ALT) / 100) {
+					al_draw_rectangle(LARG / 2 - (11 * LARG) / 100, (30 * ALT) / 100, LARG / 2 + (11.3 * LARG) / 100,
+						(70 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
+				}
+
+				//Se escolhe melhor de 5
+				if (mouseX >= LARG / 2 - (- 21 * LARG) / 100 && mouseX <= LARG / 2 + (43 * LARG) / 100 &&
+					mouseY >= (30 * ALT) / 100 && mouseY <= (70 * ALT) / 100) {
+				
+					al_draw_rectangle(LARG / 2 - (- 21 * LARG) / 100, (30 * ALT) / 100, LARG / 2 + (43 * LARG) / 100,
+						(70 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
+				}
+			} else if (estado == tela_como_jogar) {
+				al_draw_bitmap(imagem_fundo_como_jogar, 0, 0, 0);
+
+				al_draw_textf(fonte22, al_map_rgb(0, 0, 0), LARG / 2 - 250 , ALT / 2 - 150, ALLEGRO_ALIGN_LEFT,
+					    "•");
+				al_draw_textf(fonteMediaMenor, al_map_rgb(0, 0, 0), LARG / 2 - 200 , ALT / 2 - 150, ALLEGRO_ALIGN_LEFT,
+					    "Escolha quantidade de rodadas");
+				al_draw_textf(fonteMediaMenor, al_map_rgb(0, 0, 0), LARG / 2 - 200, ALT / 2 - 100, ALLEGRO_ALIGN_LEFT,
+					    "Fique sem se mexer diante a camera");
+				al_draw_textf(fonteMediaMenor, al_map_rgb(0, 0, 0), LARG / 2 - 200, ALT / 2 - 50, ALLEGRO_ALIGN_LEFT,
+					    "Aguarde o sinal ");
+				al_draw_textf(fonteMediaMenor, al_map_rgb(0, 0, 0), LARG / 2 - 200, ALT / 2 , ALLEGRO_ALIGN_LEFT,
+					    "Atire no oponente");
+
+				//BOTAO DE VOLTAR
+				if (mouseX >= LARG / 2 - (14 * LARG) / 100 && mouseX <= LARG / 2 + (12 * LARG) / 100 &&
+					mouseY >= (80 * ALT) / 100 && mouseY <= (90 * ALT) / 100) {
+					al_draw_rectangle(LARG / 2 - (14 * LARG) / 100, (80 * ALT) / 100, LARG / 2 + (12 * LARG) / 100,
+					 (90 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
+				}
+
+			} else if (estado == tela_creditos) {
+				// Desenha tela de creditos
+				al_draw_bitmap(imagem_fundo_como_jogar, 0, 0, 0);
+
+				al_draw_textf(fonteMedia, al_map_rgb(0, 0, 0), LARG / 2 , ALT / 2 - 200, ALLEGRO_ALIGN_CENTRE,
+					    "Jogo desenvolvido por ");
+				al_draw_textf(fonteMedia, al_map_rgb(0, 0, 0), LARG / 2 , ALT / 2 - 100, ALLEGRO_ALIGN_CENTRE,
+					    "Mario de Castro");
+				al_draw_textf(fonteMedia, al_map_rgb(0, 0, 0), LARG / 2 , ALT / 2 - 50, ALLEGRO_ALIGN_CENTRE,
+					    "William Alvelos");
+				al_draw_textf(fonteMedia, al_map_rgb(0, 0, 0), LARG / 2 , ALT / 2 , ALLEGRO_ALIGN_CENTRE,
+					    "Humberto Vieira");
+				al_draw_textf(fonteMedia, al_map_rgb(0, 0, 0), LARG / 2 , ALT / 2 + 100 , ALLEGRO_ALIGN_CENTRE,
+					    "Designer Fernanda Ruivo");
+
+				//BOTAO DE VOLTAR
+				if (mouseX >= LARG / 2 - (14 * LARG) / 100 && mouseX <= LARG / 2 + (12 * LARG) / 100 &&
+					mouseY >= (80 * ALT) / 100 && mouseY <= (90 * ALT) / 100) {
+					al_draw_rectangle(LARG / 2 - (14 * LARG) / 100, (80 * ALT) / 100, LARG / 2 + (12 * LARG) / 100,
+					 (90 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
+				}
+
 			}
 
 			al_flip_display();
@@ -370,9 +541,15 @@ int main (void) {
 	al_destroy_font(fonteTitulo);
 	al_destroy_font(fonteGrande);
 	al_destroy_font(fonte22);
+	al_destroy_font(fonteMedia);
+	al_destroy_font(fonteMediaMenor);
 
 	al_destroy_bitmap(imagem_esq);
     al_destroy_bitmap(imagem_dir);
+
+    al_destroy_bitmap(imagem_fundo_titulo);
+    al_destroy_bitmap(imagem_fundo_creditos);
+    al_destroy_bitmap(imagem_fundo_como_jogar);
 
 	al_stop_timer(timer);
 	al_destroy_timer(timer);
