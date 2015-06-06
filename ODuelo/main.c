@@ -5,12 +5,12 @@
  * Professor Orientador: Marcelo Hashimoto
  *
  * Grupo:
- * - Mario Roberto Suruagu de Castro
+ * - Mario Roberto Suruagy de Castro
  * - Humberto Vieira de Castro
  * - William Collecta de Alvelos
  *
  *
- * Esqueleto da fluxo de telas do Jogo
+ * Jogo - o Duelo
  */
 
 #include <stdio.h>
@@ -90,7 +90,7 @@ int main (void) {
 
 
 	camera *cam = camera_inicializa(0);
-	if (!cam) {
+	if (!cam) {	
 		fprintf(stderr, "Falha ao Inicializar a Camera\n");
 		return EXIT_FAILURE;
 	}
@@ -554,6 +554,10 @@ int main (void) {
 			} else if (estado == tela_resultado) {
 				al_draw_bitmap(imagem_fundo_resultado, 0, 0, 0);
 				
+
+				al_draw_filled_rectangle( (LARG / 2) - (14 * LARG) / 100,(ALT / 2) - (ALT * 30)/100 , LARG / 2 + (12.5 * LARG) / 100,
+					 (55 * ALT) / 100, al_map_rgb(0, 0, 0));
+
 				//Botão Jogar novamente
 				if (mouseX >= LARG / 2 - (14 * LARG) / 100 && mouseX <= LARG / 2 + (12.2 * LARG) / 100 &&
 					mouseY >= (64 * ALT) / 100 && mouseY <= (78 * ALT) / 100) {
