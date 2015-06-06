@@ -42,7 +42,8 @@ int main (void) {
 	const int FPS = 60;
 	int tempo = 0;
 	int tempoInicio = 0;
-	int rounds;
+	int roundsTotal;
+	int roundsAtual;
 
 	bool corPlayer01 = false;
 	bool corPlayer02 = false;
@@ -86,6 +87,7 @@ int main (void) {
     ALLEGRO_FONT *fonteMediaMenor = NULL;
     ALLEGRO_FONT *fonteGrandeJogo = NULL;
     ALLEGRO_FONT *fonteGrandeRounds = NULL;
+    ALLEGRO_FONT *fonteGrandePlacar = NULL;
 
 
 
@@ -127,7 +129,7 @@ int main (void) {
 	}
 
 	al_set_window_position(janela, (disp_data.width - LARG) / 2, (disp_data.height - ALT) / 2);
-	al_set_window_title(janela, "POC");
+	al_set_window_title(janela, "O Duelo - Game");
 
 	float largImg = disp_data.width / 2;
 	float altImg = (float) cam->altura * largImg / cam->largura;
@@ -192,6 +194,13 @@ int main (void) {
 
 	fonteGrandeRounds = al_load_font("fontes/Romantiques.ttf", (7 * ALT) / 100, 0);
 	if (!fonteGrandeRounds)
+	{
+		fprintf(stderr, "Falha ao Carregar a Fonte\n");
+		return EXIT_FAILURE;
+	}
+
+	fonteGrandePlacar = al_load_font("fontes/Romantiques.ttf", (14 * ALT) / 100, 0);
+	if (!fonteGrandePlacar)
 	{
 		fprintf(stderr, "Falha ao Carregar a Fonte\n");
 		return EXIT_FAILURE;
@@ -284,7 +293,31 @@ int main (void) {
 				if (dueloIniciado) {
 					if (!permiteTiro) {
 						if (movimento01 || movimento02) {
-							estado = tela_resultado;
+							printf("3 %d x %d \n", vitoriasPlayer1, vitoriasPlayer2);
+							
+							if(movimento01){
+								vitoriasPlayer2 = vitoriasPlayer2 + 1;
+							}else if(movimento02){
+								vitoriasPlayer1 = vitoriasPlayer1 + 1;
+							}
+
+							roundsAtual = roundsAtual + 1;
+
+							tempo = 0;
+							tempoInicio = 0;
+							permiteTiro = false;
+							dueloIniciado = false;
+							corPlayer01 = false;
+							corPlayer02 = false;
+							movimento01 = false;
+							movimento02 = false;
+							camera_atualiza(cam);
+							camera_atualiza(cam02);
+
+							if(vitoriasPlayer1 > (roundsTotal / 2) || vitoriasPlayer2 > (roundsTotal / 2) ){
+								printf("4 %d x %d \n", vitoriasPlayer1, vitoriasPlayer2);
+								estado = tela_resultado;
+							}
 						}
 					}
 
@@ -294,8 +327,32 @@ int main (void) {
 	            	}
 
 	            	if (permiteTiro && (corPlayer01 || corPlayer02)) {
-	            		estado = tela_resultado;
-	            	}
+						
+						printf("2 %d x %d \n", vitoriasPlayer1, vitoriasPlayer2);
+						if(corPlayer01){
+							vitoriasPlayer1 = vitoriasPlayer1 + 1;
+						}else if(corPlayer02){
+							vitoriasPlayer2 = vitoriasPlayer2 + 1;
+						}
+
+						roundsAtual = roundsAtual + 1;
+
+						tempo = 0;
+						tempoInicio = 0;
+						permiteTiro = false;
+						corPlayer01 = false;
+						corPlayer02 = false;
+						movimento01 = false;
+						movimento02 = false;
+						dueloIniciado = false;
+						camera_atualiza(cam);
+						camera_atualiza(cam02);
+				
+						if(vitoriasPlayer1 > roundsTotal / 2 || vitoriasPlayer2 > roundsTotal / 2 ){
+							printf("1 %d x %d \n", vitoriasPlayer1, vitoriasPlayer2);
+							estado = tela_resultado;
+						}
+					}
 				}
 
             	copia_matriz(cam, cam->quadro, matriz_anterior);
@@ -374,29 +431,40 @@ int main (void) {
 					//Se escolhe melhor de 1
 					if (mouseX >= LARG / 2 - (43 * LARG) / 100 && mouseX <= LARG / 2 + (-20 * LARG) / 100 &&
 						mouseY >= (30 * ALT) / 100 && mouseY <= (70 * ALT) / 100) {
-						rounds = 1;
-						
+						roundsTotal = 1;
+						roundsAtual = 1;
 						tempo = 0;
 						tempoInicio = 0;
+						corPlayer01 = false;
+						corPlayer02 = false;
 						permiteTiro = false;
 						dueloIniciado = false;
 						camera_atualiza(cam);
 						camera_atualiza(cam02);
 						
+
+						vitoriasPlayer1 = 0;
+						vitoriasPlayer2 = 0;
 
 						estado = tela_jogo;
 					}
 					//Se escolhe melhor de 3
 					if (mouseX >= LARG / 2 - (11 * LARG) / 100 && mouseX <= LARG / 2 + (11.3 * LARG) / 100 &&
 						mouseY >= (30 * ALT) / 100 && mouseY <= (70 * ALT) / 100) {
-						rounds = 3;
+						roundsTotal = 3;
+						roundsAtual = 1;
 
 						tempo = 0;
 						tempoInicio = 0;
 						permiteTiro = false;
 						dueloIniciado = false;
+						corPlayer01 = false;
+						corPlayer02 = false;
 						camera_atualiza(cam);
 						camera_atualiza(cam02);
+
+						vitoriasPlayer1 = 0;
+						vitoriasPlayer2 = 0;
 
 						estado = tela_jogo;
 					}
@@ -404,14 +472,20 @@ int main (void) {
 					//Se escolhe melhor de 5
 					if (mouseX >= LARG / 2 - (- 21 * LARG) / 100 && mouseX <= LARG / 2 + (43 * LARG) / 100 &&
 						mouseY >= (30 * ALT) / 100 && mouseY <= (70 * ALT) / 100) {
-						rounds = 5;
+						roundsTotal = 5;
+						roundsAtual = 1;
 
 						tempo = 0;
 						tempoInicio = 0;
 						permiteTiro = false;
 						dueloIniciado = false;
+						
 						camera_atualiza(cam);
 						camera_atualiza(cam02);
+
+
+						vitoriasPlayer1 = 0;
+						vitoriasPlayer2 = 0;
 
 						estado = tela_jogo;
 					}
@@ -480,13 +554,14 @@ int main (void) {
 
 	            al_draw_bitmap(imagem_fundo_jogo, 0, 0, 0);
 
-	            //Teste para fundo de imagem----------------------------------------------------------------
+	            //Teste para fundo de imagem
 	            //al_draw_filled_rectangle(0, 0, LARG, ALT, al_map_rgb(0, 0, 0));
 
 
 	            //Escreve a rodada que está
+	            sprintf(vitExibicao,"%d", roundsAtual);
 	            al_draw_textf(fonteGrandeRounds, al_map_rgb(0, 0, 0), LARG / 2 - 15, 100, ALLEGRO_ALIGN_LEFT,
-					    "1");
+					    vitExibicao);
 
 	            // Fundo da imagem da camera 01
 	     		al_draw_filled_rectangle(LARG / 2 - (47 * LARG) / 100, (60 * ALT) / 100, LARG / 2 - (30 * LARG) / 100,
@@ -504,18 +579,14 @@ int main (void) {
 	             	(60 * ALT) / 100, 217, 200, 0);
 	            
 	            //Numero de rodadas ganhas Player 1
-	            //sprintf(vitExibicao,"%d", vitoriasPlayer1);
-	            al_draw_textf(fonteGrandeJogo, al_map_rgb(255, 255, 255), LARG / 2 - (38 * LARG) / 100, (42 * ALT) / 100, 
-	            	ALLEGRO_ALIGN_CENTRE, "A");
+	            sprintf(vitExibicao,"%d", vitoriasPlayer1);
+	            al_draw_textf(fonteGrandePlacar, al_map_rgb(0, 0, 0), LARG / 2 - (38 * LARG) / 100, (42 * ALT) / 100, 
+	            	ALLEGRO_ALIGN_CENTRE, vitExibicao);
 
 	            //Numero de rodadas ganhas Player 2
-	            //sprintf(vitExibicao,"%d", vitoriasPlayer2);
-	            al_draw_textf(fonteGrandeJogo, al_map_rgb(255, 255, 255), LARG / 2 + (39 * LARG) / 100, (42 * ALT) / 100, 
-	            	ALLEGRO_ALIGN_CENTRE, "B");
-
-
-
-
+	            sprintf(vitExibicao,"%d", vitoriasPlayer2);
+	            al_draw_textf(fonteGrandePlacar, al_map_rgb(0, 0, 0), LARG / 2 + (39 * LARG) / 100, (42 * ALT) / 100, 
+	            	ALLEGRO_ALIGN_CENTRE, vitExibicao);
 
 
 	            //CASO QUEIRAM AUMENTAR AGAIN
@@ -554,13 +625,15 @@ int main (void) {
 			} else if (estado == tela_resultado) {
 				al_draw_bitmap(imagem_fundo_resultado, 0, 0, 0);
 				
-
+				//Fundo retangulo
 				al_draw_filled_rectangle( (LARG / 2) - (14 * LARG) / 100,(ALT / 2) - (ALT * 30)/100 , LARG / 2 + (12.5 * LARG) / 100,
 					 (55 * ALT) / 100, al_map_rgb(0, 0, 0));
 
 				//Botão Jogar novamente
 				if (mouseX >= LARG / 2 - (14 * LARG) / 100 && mouseX <= LARG / 2 + (12.2 * LARG) / 100 &&
 					mouseY >= (64 * ALT) / 100 && mouseY <= (78 * ALT) / 100) {
+					
+
 					al_draw_rectangle(LARG / 2 - (14 * LARG) / 100, (68 * ALT) / 100, LARG / 2 + (12.2 * LARG) / 100,
 					 (78 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
 				}
@@ -573,45 +646,115 @@ int main (void) {
 				}
 
 				if (corPlayer01) {
-					al_draw_scaled_bitmap(imagem_esq, 0, 0, cam->largura, cam->altura, (LARG / 2) - (14 * LARG) / 100, 
-						(ALT / 2) - (ALT * 30)/100, 340, 253, 0);
-					al_draw_textf(fonte22, al_map_rgb(255, 255, 255), 20, 20, ALLEGRO_ALIGN_LEFT,
+						
+					// al_draw_scaled_bitmap(imagem_esq, 0, 0, cam->largura, cam->altura, (LARG / 2) - (14 * LARG) / 100, 
+					// 	(ALT / 2) - (ALT * 30)/100, 340, 253, 0);
+					al_draw_textf(fonteGrandeJogo, al_map_rgb(255, 255, 255), 20, 20, ALLEGRO_ALIGN_LEFT,
 	    				"Jogador 1 Ganhou!");
+					/*al_draw_textf(fonteGrandeRounds, al_map_rgb(0, 0, 0), LARG / 2 + 75, ALT / 2 - 277, ALLEGRO_ALIGN_LEFT,
+	    				"2");*/
+
 				} else if (corPlayer02) {
-					al_draw_scaled_bitmap(imagem_dir, 0, 0, cam->largura, cam->altura, (LARG / 2) - (14 * LARG) / 100, 
-						(ALT / 2) - (ALT * 30)/100, 340, 253, 0);
+					
+					// al_draw_scaled_bitmap(imagem_dir, 0, 0, cam->largura, cam->altura, (LARG / 2) - (14 * LARG) / 100, 
+					// 	(ALT / 2) - (ALT * 30)/100, 340, 253, 0);
 					al_draw_textf(fonte22, al_map_rgb(255, 255, 255), 20, 20, ALLEGRO_ALIGN_LEFT,
 	    				"Jogador 2 Ganhou!");
+					/*al_draw_textf(fonteGrandeRounds, al_map_rgb(0, 0, 0), LARG / 2 + 75, ALT / 2 - 277, ALLEGRO_ALIGN_LEFT,
+	    				"1");*/
+
 				} else if (!permiteTiro && movimento01) {
+					
+					// al_draw_scaled_bitmap(imagem_dir, 0, 0, cam->largura, cam->altura, (LARG / 2) - (14 * LARG) / 100, 
+					// 	(ALT / 2) - (ALT * 30)/100, 340, 253, 0);
 					al_draw_textf(fonte22, al_map_rgb(255, 255, 255), 20, 20, ALLEGRO_ALIGN_LEFT,
 	    				"Jogador 1 se moveu antes da hora!");
+
+
 				} else if (!permiteTiro && movimento02) {
+					// al_draw_scaled_bitmap(imagem_esq, 0, 0, cam->largura, cam->altura, (LARG / 2) - (14 * LARG) / 100, 
+					// 	(ALT / 2) - (ALT * 30)/100, 340, 253, 0);
 					al_draw_textf(fonte22, al_map_rgb(255, 255, 255), 20, 20, ALLEGRO_ALIGN_LEFT,
 	    				"Jogador 2 se moveu antes da hora!");
+
 				}
 
+				if(vitoriasPlayer1 > vitoriasPlayer2){
+					al_draw_scaled_bitmap(imagem_esq, 0, 0, cam->largura, cam->altura, (LARG / 2) - (14 * LARG) / 100, 
+						(ALT / 2) - (ALT * 30)/100, 340, 253, 0);
+					al_draw_textf(fonteGrandeRounds, al_map_rgb(0, 0, 0), LARG / 2 + 75, ALT / 2 - 277, ALLEGRO_ALIGN_LEFT,
+	    				"1");
+				}else if(vitoriasPlayer2 > vitoriasPlayer1) {
+					printf("%d x %d\n", vitoriasPlayer1, vitoriasPlayer2);
+					al_draw_scaled_bitmap(imagem_dir, 0, 0, cam->largura, cam->altura, (LARG / 2) - (14 * LARG) / 100, 
+						(ALT / 2) - (ALT * 30)/100, 340, 253, 0);
+					al_draw_textf(fonteGrandeRounds, al_map_rgb(0, 0, 0), LARG / 2 + 75, ALT / 2 - 277, ALLEGRO_ALIGN_LEFT,
+	    				"2");
+				}else{
+
+					if (corPlayer01) {
+						
+						al_draw_scaled_bitmap(imagem_esq, 0, 0, cam->largura, cam->altura, (LARG / 2) - (14 * LARG) / 100, 
+							(ALT / 2) - (ALT * 30)/100, 340, 253, 0);
+						al_draw_textf(fonteGrandeRounds, al_map_rgb(0, 0, 0), LARG / 2 + 75, ALT / 2 - 277, ALLEGRO_ALIGN_LEFT,
+	    					"1");
+
+					} else if (corPlayer02) {
+						
+						al_draw_scaled_bitmap(imagem_dir, 0, 0, cam->largura, cam->altura, (LARG / 2) - (14 * LARG) / 100, 
+							(ALT / 2) - (ALT * 30)/100, 340, 253, 0);
+						al_draw_textf(fonteGrandeRounds, al_map_rgb(0, 0, 0), LARG / 2 + 75, ALT / 2 - 277, ALLEGRO_ALIGN_LEFT,
+	    					"2");
+
+					} else if (!permiteTiro && movimento01) {
+						
+						al_draw_scaled_bitmap(imagem_dir, 0, 0, cam->largura, cam->altura, (LARG / 2) - (14 * LARG) / 100, 
+							(ALT / 2) - (ALT * 30)/100, 340, 253, 0);
+						al_draw_textf(fonteGrandeRounds, al_map_rgb(0, 0, 0), LARG / 2 + 75, ALT / 2 - 277, ALLEGRO_ALIGN_LEFT,
+	    					"2");
+
+
+					} else if (!permiteTiro && movimento02) {
+						al_draw_scaled_bitmap(imagem_esq, 0, 0, cam->largura, cam->altura, (LARG / 2) - (14 * LARG) / 100, 
+							(ALT / 2) - (ALT * 30)/100, 340, 253, 0);
+						al_draw_textf(fonteGrandeRounds, al_map_rgb(0, 0, 0), LARG / 2 + 75, ALT / 2 - 277, ALLEGRO_ALIGN_LEFT,
+	    					"1");
+					}
+
+				}
+
+
+				
 			} else if (estado == tela_escolha_rodadas) {
 				al_draw_bitmap(imagem_fundo_escolha_rodadas, 0, 0, 0);
 
 				//Se escolhe melhor de 1
 				if (mouseX >= LARG / 2 - (43 * LARG) / 100 && mouseX <= LARG / 2 + (-20 * LARG) / 100 &&
 					mouseY >= (30 * ALT) / 100 && mouseY <= (70 * ALT) / 100) {
-					al_draw_rectangle(LARG / 2 - (43 * LARG) / 100, (30 * ALT) / 100, LARG / 2 + (-20 * LARG) / 100,
-						(70 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
+
+					al_draw_circle(235, 360, 144, al_map_rgb(255, 255, 255), 5);
+
+					// al_draw_rectangle(LARG / 2 - (43 * LARG) / 100, (30 * ALT) / 100, LARG / 2 + (-20 * LARG) / 100,
+					// 	(70 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
 				}
 				//Se escolhe melhor de 3
 				if (mouseX >= LARG / 2 - (11 * LARG) / 100 && mouseX <= LARG / 2 + (11.3 * LARG) / 100 &&
 					mouseY >= (30 * ALT) / 100 && mouseY <= (70 * ALT) / 100) {
-					al_draw_rectangle(LARG / 2 - (11 * LARG) / 100, (30 * ALT) / 100, LARG / 2 + (11.3 * LARG) / 100,
-						(70 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
+
+					al_draw_circle(642, 360, 144, al_map_rgb(255, 255, 255), 5);
+
+					// al_draw_rectangle(LARG / 2 - (11 * LARG) / 100, (30 * ALT) / 100, LARG / 2 + (11.3 * LARG) / 100,
+					// 	(70 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
 				}
 
 				//Se escolhe melhor de 5
 				if (mouseX >= LARG / 2 - (- 21 * LARG) / 100 && mouseX <= LARG / 2 + (43 * LARG) / 100 &&
 					mouseY >= (30 * ALT) / 100 && mouseY <= (70 * ALT) / 100) {
+
+					al_draw_circle(1049, 360, 144, al_map_rgb(255, 255, 255), 5);
 				
-					al_draw_rectangle(LARG / 2 - (- 21 * LARG) / 100, (30 * ALT) / 100, LARG / 2 + (43 * LARG) / 100,
-						(70 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
+					// al_draw_rectangle(LARG / 2 - (- 21 * LARG) / 100, (30 * ALT) / 100, LARG / 2 + (43 * LARG) / 100,
+					// 	(70 * ALT) / 100, al_map_rgb(255, 255, 255), 5);
 				}
 			} else if (estado == tela_como_jogar) {
 				al_draw_bitmap(imagem_fundo_como_jogar, 0, 0, 0);
@@ -683,6 +826,7 @@ int main (void) {
 	al_destroy_font(fonteMediaMenor);
 	al_destroy_font(fonteGrandeJogo);
 	al_destroy_font(fonteGrandeRounds);
+	al_destroy_font(fonteGrandePlacar);
 	
 
 	al_destroy_bitmap(imagem_esq);
