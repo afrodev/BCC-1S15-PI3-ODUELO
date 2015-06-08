@@ -25,12 +25,6 @@
 #include "camera.h"
 #include "duelolib.h"
 
-typedef struct{
-	float h;
-	float s;
-	float v;
-}hsv;
-
 enum ESTADO{tela_titulo, tela_jogo, tela_resultado, tela_como_jogar, tela_creditos, tela_escolha_rodadas}; 
 
 int main (void) {
@@ -44,6 +38,9 @@ int main (void) {
 	int tempoInicio = 0;
 	int roundsTotal;
 	int roundsAtual;
+
+	int quantidade01 = 0;
+	int quantidade02 = 0;
 
 	bool corPlayer01 = false;
 	bool corPlayer02 = false;
@@ -277,8 +274,8 @@ int main (void) {
 			if (estado == tela_jogo) {
 				corPlayer01 = false;
 				corPlayer02 = false;
-				movimento01 = compara_matriz(cam, matriz_anterior, matriz, range, sensibilidade, sensibilidadeCor, &corPlayer01);
-				movimento02 = compara_matriz(cam02, matriz_anterior02, matriz02, range, sensibilidade, sensibilidadeCor, &corPlayer02);
+				movimento01 = compara_matriz(cam, matriz_anterior, matriz, range, sensibilidade, sensibilidadeCor, &corPlayer01, &quantidade01, 1);
+				movimento02 = compara_matriz(cam02, matriz_anterior02, matriz02, range, sensibilidade, sensibilidadeCor, &corPlayer02, &quantidade02, 2);
 
 				if (!dueloIniciado && !movimento01 && !movimento02) {
 					tempoInicio++;
@@ -355,7 +352,7 @@ int main (void) {
 					}
 				}
 
-            	copia_matriz(cam, cam->quadro, matriz_anterior);
+            	copia_matriz(cam, matriz, matriz_anterior);
             	copia_matriz(cam02, cam02->quadro, matriz_anterior02);
 			}
 		}
@@ -549,7 +546,7 @@ int main (void) {
 				}
 
 			} else if (estado == tela_jogo) {
-				camera_copia(cam, cam->quadro, imagem_esq);
+				camera_copia(cam, matriz, imagem_esq);
 	            camera_copia(cam02, cam02->quadro, imagem_dir);	
 
 	            al_draw_bitmap(imagem_fundo_jogo, 0, 0, 0);

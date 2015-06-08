@@ -1,12 +1,13 @@
 #include "duelolib.h"
 #include <stdio.h>
 
-void rgb_hsv(camera *cam, int **matiz, int **iluminacao){
+void rgb_hsv(camera *cam, int **matiz, int **iluminacao) {
 	for(int i = 0; i < cam->altura; i++){
 		for(int j = 0; j < cam->largura; j++){
 			float r = (float) cam->quadro[i][j][0] / 255;
 			float g = (float) cam->quadro[i][j][1] / 255;
 			float b = (float) cam->quadro[i][j][2] / 255;
+			float aux;
 
 			float max, min, delta;
 
@@ -28,20 +29,16 @@ void rgb_hsv(camera *cam, int **matiz, int **iluminacao){
 
 			delta = max - min;
 
-			if(max == r){
-				if(g >= b){
-					matiz[i][j] = 60*((g - b)/delta);
-				}
-				else{
-					matiz[i][j] = 360 + 60*((g - b)/delta);
-				}
-			}
-			else if(max == g){
-				matiz[i][j] = 120 + 60*((b - r)/delta);
-			}
-			else{
-				matiz[i][j] = 240 + 60*((r - g)/delta);
-			}
+			if (r == max)
+				aux = ( g - b ) / delta;		// between yellow & magenta
+			else if (g == max)
+				aux = 2 + ( b - r ) / delta;	// between cyan & yellow
+			else
+				aux = 4 + ( r - g ) / delta;	// between magenta & cyan
+
+			matiz[i][j] = aux * 60;				// degrees	
+			if(matiz[i][j] < 0)
+				matiz[i][j] += 360;
 
 			iluminacao[i][j] = max*100;
 
@@ -61,9 +58,11 @@ void copia_matriz(camera *cam, unsigned char ***matriz_01, unsigned char ***matr
 }
 
 /* Compara frames para detectar se houve movimento */
-bool compara_matriz(camera *cam, unsigned char ***matriz_original, unsigned char ***matriz, int range, int sensibilidade, int sensibilidadeCor, bool *corPlayer) {	
+bool compara_matriz(camera *cam, unsigned char ***matriz_original, unsigned char ***matriz, int range, int sensibilidade, int sensibilidadeCor, bool *corPlayer, int *quantidadeAnterior, int qual) {	
 	int diferenca = 0;
 	int quantidade = 0;
+	int corInicio = 47;
+	int corFim = 68;
 
 	int **matiz = malloc(cam->altura*sizeof(int *));
 	int **iluminacao = malloc(cam->altura*sizeof(int *));
@@ -72,34 +71,40 @@ bool compara_matriz(camera *cam, unsigned char ***matriz_original, unsigned char
 		iluminacao[i] = malloc(cam->largura*sizeof(int));
 	}
 
-	rgb_hsv(cam, matiz,iluminacao);
+	rgb_hsv(cam, matiz, iluminacao);
 
 	for(int y = 0; y < cam->altura; y++) {
 	  
 		for(int x = 0; x < cam->largura; x++) {
-			int r = cam->quadro[y][x][0];
-			int g = cam->quadro[y][x][1];
-			int b = cam->quadro[y][x][2];
-			int mario = matiz[y][x];
-            int humberto = iluminacao[y][x]; 
+			int r = cam->quadro[y][x][0] / 255;
+			int g = cam->quadro[y][x][1] / 255;
+			int b = cam->quadro[y][x][2] / 255;
+			int cor = matiz[y][x];
+            // int humberto = iluminacao[y][x]; 
 	   
-		    if(r <= matriz_original[y][x][0] - range || r >= matriz_original[y][x][0] + range ||
+		    if (r <= matriz_original[y][x][0] - range || r >= matriz_original[y][x][0] + range ||
 		       g <= matriz_original[y][x][1] - range || g >= matriz_original[y][x][1] + range ||
 		       b <= matriz_original[y][x][2] - range || b >= matriz_original[y][x][2] + range) {
 	        	diferenca++;
 		    }
-		    if(mario >= 340 && humberto >= 70) {
-            	quantidade++;
-            }
+		    if (cor >= corInicio && cor <= corFim && r + g >= 1.5 && b <= 0.55){
+		        matriz[y][x][0] = 255;
+	            matriz[y][x][1] = 255;
+	            matriz[y][x][2] = 255;
+		        quantidade++;
+	        } else {
+	        	matriz[y][x][0] = 0;	
+	            matriz[y][x][1] = 0;
+	            matriz[y][x][2] = 0;
+	        }
 		}		
 	}
 
-	if (quantidade > (cam->altura * cam->largura) / sensibilidadeCor) {
-		*corPlayer = true;
-	}
-	if (diferenca > (cam->altura * cam->largura) / sensibilidade) {
-		return true;
-	}
+	// printf("%d\n", quantidade - *quantidadeAnterior);
+	// if (quantidade - *quantidadeAnterior > 5000) {
+	// 	printf("atirou %d\n", qual);
+	// 	// *corPlayer = true;
+	// }
 
 	for(int i = 0; i < cam->altura; i++){
 		free(matiz[i]);
@@ -107,6 +112,12 @@ bool compara_matriz(camera *cam, unsigned char ***matriz_original, unsigned char
 	}
 	free(matiz);
 	free(iluminacao);
+
+	*quantidadeAnterior = quantidade;
+
+	if (diferenca > (cam->altura * cam->largura) / sensibilidade) {
+		return true;
+	}
 
 	return false;
 }
