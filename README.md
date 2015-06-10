@@ -4,23 +4,43 @@ Jogo utilizando visão computacional para a disciplina de Projeto Integrador III
 Tutorial de Instalação
 
 Requisitos:
- - Sistema operacional: Ubuntu e derivados;
+<ul><li>Sistema operacional: Ubuntu e derivados;</li></ul>
 
-1 - Fazer o download do projeto no Github. Abra o terminal e execute o comando:
-git clone https://github.com/betovieira/BCC-1S15-PI3-ODUELO.git
+<ol>
+<li>Fazer o download do projeto no Github.
+<ul>
+<li> Abra o terminal e execute o comando: git clone https://github.com/betovieira/BCC-1S15-PI3-ODUELO.git</li>
+</ul>
+</li>
 
-2 - Instalação do OpenCV
-2.1 - Abrir o terminal;
-2.2 - Entrar na pasta chamada "opencv"
-2.3 - Colocar no terminal o seguinte comando: ./opencv.sh
 
-3 - Instalação do allegro5
-3.1 - Abrir o terminal;
-3.2 - Entrar na pasta chamada "allegro5";
-3.3 - Colocar no terminal o seguinte comando: ./allegro5.sh
+<li>Instalação do OpenCV
+<ul>
+<li> Abrir o terminal;</li>
+<li> Entrar na pasta chamada "opencv"</li>
+<li> Colocar no terminal o seguinte comando: ./opencv.sh </li>
+</ul>
+</li>
 
-3 - Compilar o jogo
-3.1 - Abrir o terminal; 
-3.2 - Entrar na pasta "ODuelo";
-3.2 - Colocar no comando no terminal: make
-3.3 - Executar o comando: ./exemplo
+
+<li>Instalação do allegro5
+<ul>
+<li> Abrir o terminal;</li>
+<li> Entrar na pasta chamada "allegro5";</li>
+<li> Colocar no terminal o seguinte comando: ./allegro5.sh </li>
+</ul>
+</li>
+
+
+<li>Compilar o jogo
+<ul>
+<li> Abrir o terminal; </li>
+<li> Entrar na pasta "ODuelo";</li>
+<li> Executar no terminal o comando: make </li>
+<li> Executar o comando: ./exemplo </li>
+</li>
+
+
+</ul>
+
+</ol>
