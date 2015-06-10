@@ -52,9 +52,11 @@ int main (void) {
 	bool permiteTiro = false;
 	bool dueloIniciado = false;
 
-    int sensibilidade = 100; //<=========================
-    // int sensibilidadeCor = 75; 
-	int range = 40; //<=========================
+    int sensibilidade; //<=========================
+	int range; //<=========================
+	int corInicio; //<=========================
+	int corFim;  //<=========================
+	float saturValor; //<=========================
 
 	int vitoriasPlayer1 = 0;
 	int vitoriasPlayer2 = 0;
@@ -87,7 +89,20 @@ int main (void) {
     ALLEGRO_FONT *fonteGrandeRounds = NULL;
     ALLEGRO_FONT *fonteGrandePlacar = NULL;
 
+    FILE *parametros;
 
+    parametros = fopen("parametros.txt", "r");
+    fscanf(parametros, "%d ", &sensibilidade);
+    printf("sensibilidade: %d\n", sensibilidade);
+    fscanf(parametros, "%d ", &range);
+    printf("range: %d\n", range);
+    fscanf(parametros, "%d ", &corInicio);
+    printf("corInicio: %d\n", corInicio);
+    fscanf(parametros, "%d ", &corFim);
+    printf("corFim: %d\n", corFim);
+    fscanf(parametros, "%f ", &saturValor);
+    printf("saturValor: %f\n", saturValor);
+    fclose(parametros);
 
 	camera *cam = camera_inicializa(0);
 	if (!cam) {	
@@ -275,8 +290,8 @@ int main (void) {
 			if (estado == tela_jogo) {
 				corPlayer01 = false;
 				corPlayer02 = false;
-				movimento01 = compara_matriz(cam, matriz_anterior, matriz, range, sensibilidade, &corPlayer01, &quantidade01, 1);
-				movimento02 = compara_matriz(cam02, matriz_anterior02, matriz02, range, sensibilidade, &corPlayer02, &quantidade02, 2);
+				movimento01 = compara_matriz(cam, matriz_anterior, matriz, range, sensibilidade, &corPlayer01, &quantidade01, 1, corInicio, corFim, saturValor);
+				movimento02 = compara_matriz(cam02, matriz_anterior02, matriz02, range, sensibilidade, &corPlayer02, &quantidade02, 2, corInicio, corFim, saturValor);
 
 				if (!dueloIniciado && !movimento01 && !movimento02) {
 					tempoInicio++;
@@ -547,8 +562,8 @@ int main (void) {
 				}
 
 			} else if (estado == tela_jogo) {
-				camera_copia(cam, matriz, imagem_esq);
-	            camera_copia(cam02, matriz02, imagem_dir);	
+				camera_copia(cam, cam->quadro, imagem_esq);
+	            camera_copia(cam02, cam02->quadro, imagem_dir);	
 
 	            al_draw_bitmap(imagem_fundo_jogo, 0, 0, 0);
 
