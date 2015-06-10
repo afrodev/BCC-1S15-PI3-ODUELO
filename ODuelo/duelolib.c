@@ -64,7 +64,7 @@ void copia_matriz(camera *cam, unsigned char ***matriz_01, unsigned char ***matr
 }
 
 /* Compara frames para detectar se houve movimento */
-bool compara_matriz(camera *cam, unsigned char ***matriz_original, unsigned char ***matriz, int range, int sensibilidade, bool *corPlayer, int *quantidadeAnterior, int qual, int corInicio, int corFim, float saturValor) {	
+bool compara_matriz(camera *cam, unsigned char ***matriz_original, unsigned char ***matriz, int range, int sensibilidade, bool *corPlayer, int *quantidadeAnterior, int qual, int corInicio, int corFim, float saturValor, float saturValorFinal) {	
 	int diferenca = 0;
 	int quantidade = 0;
 
@@ -97,7 +97,7 @@ bool compara_matriz(camera *cam, unsigned char ***matriz_original, unsigned char
 		       b <= matriz_original[y][x][2] - range || b >= matriz_original[y][x][2] + range) {
 	        	diferenca++;
 		    }
-		    if (cor >= corInicio && cor <= corFim && r2 + g2 >= 1.5 && b2 <= 0.55 && saturacao >= saturValor){
+		    if (cor >= corInicio && cor <= corFim && r2 + g2 >= 1.5 && b2 <= 0.55 && saturacao >= saturValor && saturacao <= saturValorFinal){
 		        matriz[y][x][0] = 255;
 	            matriz[y][x][1] = 255;
 	            matriz[y][x][2] = 255;

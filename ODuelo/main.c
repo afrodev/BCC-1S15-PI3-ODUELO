@@ -52,11 +52,19 @@ int main (void) {
 	bool permiteTiro = false;
 	bool dueloIniciado = false;
 
-    int sensibilidade; //<=========================
-	int range; //<=========================
-	int corInicio; //<=========================
-	int corFim;  //<=========================
-	float saturValor; //<=========================
+    int sensibilidade01; //<=========================
+	int range01; //<=========================
+	int corInicio01; //<=========================
+	int corFim01;  //<=========================
+	float saturValor01; //<=========================
+	float saturValorFinal01;
+
+	int sensibilidade02; //<=========================
+	int range02; //<=========================
+	int corInicio02; //<=========================
+	int corFim02;  //<=========================
+	float saturValor02; //<=========================
+	float saturValorFinal02;
 
 	int vitoriasPlayer1 = 0;
 	int vitoriasPlayer2 = 0;
@@ -90,19 +98,39 @@ int main (void) {
     ALLEGRO_FONT *fonteGrandePlacar = NULL;
 
     FILE *parametros;
+    FILE *parametros02;
 
     parametros = fopen("parametros.txt", "r");
-    fscanf(parametros, "%d ", &sensibilidade);
-    printf("sensibilidade: %d\n", sensibilidade);
-    fscanf(parametros, "%d ", &range);
-    printf("range: %d\n", range);
-    fscanf(parametros, "%d ", &corInicio);
-    printf("corInicio: %d\n", corInicio);
-    fscanf(parametros, "%d ", &corFim);
-    printf("corFim: %d\n", corFim);
-    fscanf(parametros, "%f ", &saturValor);
-    printf("saturValor: %f\n", saturValor);
+    fscanf(parametros, "%d ", &sensibilidade01);
+    printf("Camera 01:\n");
+    printf("sensibilidade: %d\n", sensibilidade01);
+    fscanf(parametros, "%d ", &range01);
+    printf("range: %d\n", range01);
+    fscanf(parametros, "%d ", &corInicio01);
+    printf("corInicio: %d\n", corInicio01);
+    fscanf(parametros, "%d ", &corFim01);
+    printf("corFim: %d\n", corFim01);
+    fscanf(parametros, "%f ", &saturValor01);
+    printf("saturValor: %f\n", saturValor01);
+    fscanf(parametros, "%f ", &saturValorFinal01);
+    printf("saturValor: %f\n", saturValorFinal01);
     fclose(parametros);
+
+    parametros02 = fopen("parametros02.txt", "r");
+    fscanf(parametros02, "%d ", &sensibilidade02);
+    printf("Camera 02:\n");
+    printf("sensibilidade: %d\n", sensibilidade02);
+    fscanf(parametros02, "%d ", &range02);
+    printf("range: %d\n", range02);
+    fscanf(parametros02, "%d ", &corInicio02);
+    printf("corInicio: %d\n", corInicio02);
+    fscanf(parametros02, "%d ", &corFim02);
+    printf("corFim: %d\n", corFim02);
+    fscanf(parametros02, "%f ", &saturValor02);
+    printf("saturValor: %f\n", saturValor02);
+    fscanf(parametros02, "%f ", &saturValorFinal02);
+    printf("saturValor: %f\n", saturValorFinal02);
+    fclose(parametros02);
 
 	camera *cam = camera_inicializa(0);
 	if (!cam) {	
@@ -290,8 +318,8 @@ int main (void) {
 			if (estado == tela_jogo) {
 				corPlayer01 = false;
 				corPlayer02 = false;
-				movimento01 = compara_matriz(cam, matriz_anterior, matriz, range, sensibilidade, &corPlayer01, &quantidade01, 1, corInicio, corFim, saturValor);
-				movimento02 = compara_matriz(cam02, matriz_anterior02, matriz02, range, sensibilidade, &corPlayer02, &quantidade02, 2, corInicio, corFim, saturValor);
+				movimento01 = compara_matriz(cam, matriz_anterior, matriz, range01, sensibilidade01, &corPlayer01, &quantidade01, 1, corInicio01, corFim01, saturValor01, saturValorFinal01);
+				movimento02 = compara_matriz(cam02, matriz_anterior02, matriz02, range02, sensibilidade02, &corPlayer02, &quantidade02, 2, corInicio02, corFim02, saturValor02, saturValorFinal02);
 
 				if (!dueloIniciado && !movimento01 && !movimento02) {
 					tempoInicio++;
@@ -388,20 +416,20 @@ int main (void) {
 				case ALLEGRO_KEY_SPACE:
 					break;
 				case ALLEGRO_KEY_UP:
-					range += 5;
+					range01 += 5;
 					break;
 				case ALLEGRO_KEY_DOWN:
-					range -= 5;
-					if (range < 0)
-						range = 0;
+					range01 -= 5;
+					if (range01 < 0)
+						range01 = 0;
 					break;
                 case ALLEGRO_KEY_RIGHT:
-                    sensibilidade += 5;
+                    sensibilidade01 += 5;
                     break;
                 case ALLEGRO_KEY_LEFT:
-                    sensibilidade -= 5;
-                    if (sensibilidade < 5)
-                        sensibilidade = 5;
+                    sensibilidade01 -= 5;
+                    if (sensibilidade01 < 5)
+                        sensibilidade01 = 5;
                     break;
 			}
 		}
@@ -606,8 +634,8 @@ int main (void) {
 	            //al_draw_scaled_bitmap(imagem_esq, 0, 0, cam->largura, cam->altura, 0, (ALT / 2) - (altImg / 2), largImg, altImg, 0);
 	            //al_draw_scaled_bitmap(imagem_dir, 0, 0, cam02->largura, cam02->altura, largImg, (ALT / 2) - (altImg / 2), largImg, altImg, 0);
 
-	            al_draw_textf(fonte22, al_map_rgb(255, 255, 255), 20, ALT - 42, ALLEGRO_ALIGN_LEFT,
-					"Range: %d Sensibilidade: %d  (setas para alterar) tempoInicio: %d tempo: %d", range, sensibilidade, tempoInicio, tempo);
+	    //         al_draw_textf(fonte22, al_map_rgb(255, 255, 255), 20, ALT - 42, ALLEGRO_ALIGN_LEFT,
+					// "Range: %d Sensibilidade: %d  (setas para alterar) tempoInicio: %d tempo: %d", range, sensibilidade, tempoInicio, tempo);
 
 	            if (permiteTiro) {
 	            	al_draw_textf(fonteGrandeJogo, al_map_rgb(255, 255, 255), LARG / 2 , ALT / 2, ALLEGRO_ALIGN_CENTRE,

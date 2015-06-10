@@ -11,6 +11,6 @@ typedef struct{
 
 void rgb_hsv(camera *, int **, int **);
 void copia_matriz(camera *, unsigned char ***, unsigned char ***);
-bool compara_matriz(camera *, unsigned char ***, unsigned char ***, int, int, bool *, int *, int, int, int, float);
+bool compara_matriz(camera *, unsigned char ***, unsigned char ***, int, int, bool *, int *, int, int, int, float, float);
 
 #endif
